@@ -47,3 +47,8 @@ fun String.firstDigit(radix: Int = 10): Int = first { it.isDigit() }.digitToInt(
  * Returns the last digit in the string, or throws if none exist.
  */
 fun String.lastDigit(radix: Int = 10): Int = last { it.isDigit() }.digitToInt(radix)
+
+fun <T> List<T>.toPair(): Pair<T, T> {
+    require(size == 2)
+    return this[0] to this[1]
+}
