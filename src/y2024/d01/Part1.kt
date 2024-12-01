@@ -1,29 +1,25 @@
 package y2024.d01
 
+import checkEquals
 import inputLines
 import println
 import toPair
+import zipStrict
+import kotlin.math.absoluteValue
 
 fun part1() {
     val lines = inputLines("y2024/d01/input")
-    val pairs = lines.map { line -> line.split(' ').mapNotNull { it.trim().toIntOrNull(10) }.toPair() }
     val left = mutableListOf<Int>()
     val right = mutableListOf<Int>()
-    for (pair in pairs) {
-        left += pair.first
-        right += pair.second
+    for (line in lines) {
+        val (l, r) = line.split(Regex("\\s+")).toPair()
+        left += l.toInt(10)
+        right += r.toInt(10)
     }
-    left.sort()
-    right.sort()
-    var sum = 0
-    for ((i, l) in left.withIndex()) {
-        val r = right[i]
-        if (l < r) {
-            sum += r - l
-        } else {
-            sum += l - r
-        }
-    }
-    sum.println(note = "Solution")
+
+    (left.sorted() zipStrict right.sorted())
+        .fold(0) { acc, (l, r) -> acc + (l - r).absoluteValue }
+        .checkEquals(2769675)
+        .println(note = "Solution")
 }
 

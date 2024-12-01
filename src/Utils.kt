@@ -48,7 +48,32 @@ fun String.firstDigit(radix: Int = 10): Int = first { it.isDigit() }.digitToInt(
  */
 fun String.lastDigit(radix: Int = 10): Int = last { it.isDigit() }.digitToInt(radix)
 
+/**
+ * Converts `this` list to a pair, if and only if `this` list has exactly two items.
+ * @throws IllegalArgumentException if the list doesn't have exactly two items.
+ */
 fun <T> List<T>.toPair(): Pair<T, T> {
-    require(size == 2)
+    require(size == 2) { "Cannot convert a list to a pair, because the list has $size items." }
     return this[0] to this[1]
+}
+
+/**
+ * Checks if `this` value equals the [other] value. If so, it will return `this`.
+ * @throws IllegalStateException if the values are not equal.
+ */
+fun <T> T.checkEquals(other: T): T = also {
+    check(this == other) {
+        "Expected this $this to equal $other."
+    }
+}
+
+/**
+ * Returns a list of pairs built from the elements of `this` collection and [other] collection with the same index.
+ * @throws IllegalArgumentException if the collections do not have the same size.
+ */
+infix fun <T, R> Collection<T>.zipStrict(other: Collection<R>): List<Pair<T, R>> {
+    require(size == other.size) {
+        "The size of this (${size}) does not equal the other size (${other.size})."
+    }
+    return zip(other)
 }
