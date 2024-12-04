@@ -77,3 +77,6 @@ infix fun <T, R> Collection<T>.zipStrict(other: Collection<R>): List<Pair<T, R>>
     }
     return zip(other)
 }
+
+/** Returns `1`, if `this` is `true`. Otherwise `0`. */
+fun Boolean.toInt() = if (this) 1 else 0

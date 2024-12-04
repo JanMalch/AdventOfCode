@@ -2,8 +2,7 @@ package y2024.d04
 
 import inputLines
 import println
-
-fun Boolean.toInt() = if (this) 1 else 0
+import toInt
 
 fun List<List<Char>>.walk(x: Int, y: Int, require: Char, contX: Int, contY: Int): Boolean {
     try {

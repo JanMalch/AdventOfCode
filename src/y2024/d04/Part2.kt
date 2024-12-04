@@ -2,6 +2,7 @@ package y2024.d04
 
 import inputLines
 import println
+import toInt
 
 
 fun List<List<Char>>.hasMasXAt(x: Int, y: Int): Boolean {
