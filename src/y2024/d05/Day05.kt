@@ -1,3 +1,3 @@
 package y2024.d05
 
-fun main() = part1()
+fun main() = part2()

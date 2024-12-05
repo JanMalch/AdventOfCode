@@ -44,6 +44,21 @@ data class Rules(
     private val afters: Map<Int, List<Int>> =
         rules.groupBy(keySelector = { it.page }, valueTransform = { it.beforePage })
 
+    private val befores: Map<Int, List<Int>> = kotlin.run {
+        val map = mutableMapOf<Int, MutableList<Int>>()
+        for (rule in rules) {
+            map.compute(rule.beforePage) { _, afters ->
+                (afters ?: mutableListOf()).apply {
+                    add(rule.page)
+                }
+            }
+        }
+        return@run map
+    }
+
+    fun getAfters(page: Int): List<Int> = afters[page].orEmpty()
+    fun getBefores(page: Int): List<Int> = befores[page].orEmpty()
+
     fun validate(page: Int, isAfter: List<Int>): Boolean {
         if (isAfter.isEmpty()) return true
 
