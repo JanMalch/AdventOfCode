@@ -1,7 +1,9 @@
 package y2024.d05
 
 import inputLines
+import itemAtCenter
 import println
+import reverseGrouping
 
 data class Rule(
     val page: Int,
@@ -25,7 +27,7 @@ data class Rule(
 data class Update(
     val pages: List<Int>
 ) {
-    val middle: Int = pages[pages.lastIndex / 2]
+    val middle: Int = pages.itemAtCenter()
 
     override fun toString(): String {
         return pages.joinToString(separator = ",")
@@ -44,49 +46,33 @@ data class Rules(
     private val afters: Map<Int, List<Int>> =
         rules.groupBy(keySelector = { it.page }, valueTransform = { it.beforePage })
 
-    private val befores: Map<Int, List<Int>> = kotlin.run {
-        val map = mutableMapOf<Int, MutableList<Int>>()
-        for (rule in rules) {
-            map.compute(rule.beforePage) { _, afters ->
-                (afters ?: mutableListOf()).apply {
-                    add(rule.page)
-                }
-            }
+    private val befores: Map<Int, List<Int>> = afters.reverseGrouping()
+
+    operator fun get(page: Int): Pair<List<Int>, List<Int>> = befores[page].orEmpty() to afters[page].orEmpty()
+}
+
+class RuleBasedComparator(
+    private val rules: Rules
+) : Comparator<Int> {
+    override fun compare(a: Int, b: Int): Int {
+        val (befores, afters) = rules[a]
+        if (b in afters) {
+            return -1
         }
-        return@run map
-    }
-
-    fun getAfters(page: Int): List<Int> = afters[page].orEmpty()
-    fun getBefores(page: Int): List<Int> = befores[page].orEmpty()
-
-    fun validate(page: Int, isAfter: List<Int>): Boolean {
-        if (isAfter.isEmpty()) return true
-
-        for (afterPage in isAfter) {
-            val aftersOfAfterPage = afters[afterPage].orEmpty()
-            if (page !in aftersOfAfterPage) {
-                return false
-            }
+        if (b in befores) {
+            return 1
         }
-        return true
+        return 0
     }
 }
 
-fun Update.isValid(rules: Rules): Boolean {
-    for (index in pages.indices) {
-        val page = pages[index]
-        val after = pages.take(index)
-        if (!rules.validate(page, isAfter = after)) {
-            return false
-        }
-    }
-    return true
-}
+fun Update.isValid(comparator: RuleBasedComparator): Boolean = pages == pages.sortedWith(comparator)
 
 fun part1() {
     val lines = inputLines("y2024/d05/input")
-    val rules = Rules(lines.takeWhile { '|' in it }.map { Rule.valueOf(it) })
-    val updates = lines.dropWhile { ',' !in it }.map { Update.valueOf(it) }
-    updates.filter { it.isValid(rules) }.sumOf { it.middle }.println("Solution")
+    val rules = Rules(lines.filter { '|' in it }.map { Rule.valueOf(it) })
+    val comparator = RuleBasedComparator(rules)
+    val updates = lines.filter { ',' in it }.map { Update.valueOf(it) }
+    updates.filter { it.isValid(comparator) }.sumOf { it.middle }.println("Solution")
 }
 

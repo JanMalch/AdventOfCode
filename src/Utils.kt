@@ -80,3 +80,71 @@ infix fun <T, R> Collection<T>.zipStrict(other: Collection<R>): List<Pair<T, R>>
 
 /** Returns `1`, if `this` is `true`. Otherwise `0`. */
 fun Boolean.toInt() = if (this) 1 else 0
+
+
+/**
+ * Creates a reverse lookup, where each input value is associated with a list of input keys.
+ * @see reverseToSingle
+ */
+fun <K, V> Map<K, V>.reverseToGroup(): Map<V, List<K>> {
+    val map = mutableMapOf<V, MutableList<K>>()
+    for ((key, value) in this) {
+        map.compute(value) { _, list ->
+            (list ?: mutableListOf()).apply { add(key) }
+        }
+    }
+    return map
+}
+
+/**
+ * Creates a reverse lookup, where each input value is associated with a single input keys.
+ * @throws IllegalArgumentException if an input value would be associated with multiple input keys
+ * @see reverseToGroup
+ */
+fun <K, V> Map<K, V>.reverseToSingle(): Map<V, K> = reverseToGroup().map { (k, v) ->
+    require(v.size == 1) {
+        "Cannot invert to lookup, because a key (previously a value) would be associated with multiple values (previously keys): $k -> $v"
+    }
+    k to v.single()
+}.toMap()
+
+/**
+ * Creates a reverse lookup, by associating every item in each entry's value list
+ * with the key of that entry.
+ */
+fun <K, V> Map<K, List<V>>.reverseGrouping(): Map<V, List<K>> {
+    val map = mutableMapOf<V, MutableList<K>>()
+    for ((key, values) in this) {
+        for (value in values) {
+            map.compute(value) { _, list ->
+                (list ?: mutableListOf()).apply { add(key) }
+            }
+        }
+    }
+    return map
+}
+
+val Int.isOdd: Boolean
+    get() = this % 2 == 1
+
+val Int.isEven: Boolean
+    get() = this % 2 == 0
+
+/**
+ * Returns the item at the center of `this` list.
+ * ```
+ * 2 5 4 1 3
+ *     ^
+ *   center
+ * ```
+ * @throws IllegalArgumentException if the list is empty or has an even size.
+ */
+fun <T> List<T>.itemAtCenter(): T {
+    require(isNotEmpty()) {
+        "An empty list does not have an item in the center."
+    }
+    require(size.isOdd) {
+        "A list of even size ($size) cannot have an item in the center."
+    }
+    return this[lastIndex / 2]
+}
