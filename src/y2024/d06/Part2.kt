@@ -1,13 +1,18 @@
 package y2024.d06
 
+import Grid
+import area
+import cells
+import checkEquals
+import copyWith
 import inputLines
 import println
-import printsep
+import toCharGrid
 
 
-private fun hasLoop(grid: List<MutableList<Char>>): Boolean {
+private fun hasLoop(grid: Grid<Char>): Boolean {
     val map = Map(grid)
-    val area = grid.size * grid[0].size
+    val area = grid.area
     var hasLoop = false
     try {
         map.go { step ->
@@ -16,7 +21,7 @@ private fun hasLoop(grid: List<MutableList<Char>>): Boolean {
                 hasLoop = it
             }
         }
-    } catch (e: IllegalStateException) {
+    } catch (e: StopWalkException) {
         // ok
     }
     return hasLoop
@@ -24,29 +29,18 @@ private fun hasLoop(grid: List<MutableList<Char>>): Boolean {
 
 fun part2() {
     val lines = inputLines("y2024/d06/input")
-    val grid = lines.map { line -> line.toCharArray().toList() }
+    val grid = lines.toCharGrid()
 
-    val variations = mutableSetOf<List<MutableList<Char>>>()
+    val variations = mutableSetOf<Grid<Char>>()
 
-    for (y in grid.indices) {
-        val row = grid[y]
-        for (x in row.indices) {
-            val cell = row[x]
-            if (cell == '.') {
-                variations += grid.mapIndexed { index, mRow ->
-                    mRow.toMutableList().apply {
-                        if (index == y) {
-                            this@apply[x] = '#'
-                        }
-                    }
-                }
-            }
+    for (cell in grid.cells()) {
+        if (cell.value == '.') {
+            variations += grid.copyWith(cell.x, cell.y, '#')
         }
     }
 
-    variations.size.println("vars")
-    printsep()
-    variations.count { hasLoop(it) }.println("Solution")
+    variations.size.checkEquals(16060).println("vars")
+    variations.count { hasLoop(it) }.checkEquals(1602).println("Solution")
 
 }
 
