@@ -13,6 +13,7 @@ enum class Facing(val step: Vec2) {
 
 class Map(private val chars: List<MutableList<Char>>) {
 
+    private var steps = 0
     private var facing: Facing
     private var position = kotlin.run {
         for (y in chars.indices) {
@@ -48,6 +49,7 @@ class Map(private val chars: List<MutableList<Char>>) {
             '.' -> {
                 position = nextPos
                 visited += position
+                steps++
                 return true
             }
 
@@ -65,9 +67,11 @@ class Map(private val chars: List<MutableList<Char>>) {
         }
     }
 
-    fun go(): Int {
+    fun go(cb: (Int) -> Boolean = { false }): Int {
         while (next()) {
-            // continue
+            if (cb(steps)) {
+                throw IllegalStateException("Callback told to exit after $steps steps.")
+            }
         }
         return visited.size
     }
