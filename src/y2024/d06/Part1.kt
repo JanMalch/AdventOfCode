@@ -1,15 +1,15 @@
 package y2024.d06
 
 import Grid
-import Vec2
 import checkEquals
 import firstOrNull
 import inputLines
 import println
 import toCharGrid
+import y2024.Direction
 
-enum class Facing(val step: Vec2) {
-    UP(Vec2.UP), DOWN(Vec2.DOWN), LEFT(Vec2.LEFT), RIGHT(Vec2.RIGHT);
+enum class Facing(val step: Direction) {
+    UP(Direction.UP), DOWN(Direction.DOWN), LEFT(Direction.LEFT), RIGHT(Direction.RIGHT);
 
     companion object {
         fun byFace(face: Char): Facing = when (face) {
@@ -40,7 +40,7 @@ class Map(private val grid: Grid<Char>) {
     private val visited = mutableSetOf(position)
 
     private fun next(): Boolean {
-        val nextPos = position + facing.step
+        val nextPos = position + facing.step.vec
         val ahead = try {
             grid[nextPos]
         } catch (e: IndexOutOfBoundsException) {
