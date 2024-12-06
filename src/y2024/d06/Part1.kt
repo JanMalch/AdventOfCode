@@ -1,14 +1,21 @@
 package y2024.d06
 
+import Vec2
 import inputLines
 import println
 
-data class Vec2(val x: Int, val y: Int) {
-    operator fun plus(other: Vec2): Vec2 = Vec2(x + other.x, y + other.y)
-}
-
 enum class Facing(val step: Vec2) {
-    UP(Vec2(0, -1)), DOWN(Vec2(0, 1)), LEFT(Vec2(-1, 0)), RIGHT(Vec2(1, 0))
+    UP(Vec2.UP), DOWN(Vec2.DOWN), LEFT(Vec2.LEFT), RIGHT(Vec2.RIGHT);
+
+    companion object {
+        fun byFace(face: Char): Facing = when (face) {
+            '^' -> UP
+            'v' -> DOWN
+            '>' -> RIGHT
+            '<' -> LEFT
+            else -> throw IllegalArgumentException("'$face' is not a valid face.")
+        }
+    }
 }
 
 class Map(private val chars: List<MutableList<Char>>) {
@@ -21,13 +28,7 @@ class Map(private val chars: List<MutableList<Char>>) {
             for (x in row.indices) {
                 when (row[x]) {
                     '^', 'v', '<', '>' -> {
-                        facing = when (row[x]) {
-                            '^' -> Facing.UP
-                            'v' -> Facing.DOWN
-                            '>' -> Facing.RIGHT
-                            '<' -> Facing.LEFT
-                            else -> error("Failed to determine initial facing direction")
-                        }
+                        facing = Facing.byFace(row[x])
                         row[x] = '.'
                         return@run Vec2(x, y)
                     }
